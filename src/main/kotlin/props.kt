@@ -39,8 +39,7 @@ fun testAsiaGroup() {
     val serverContext = ServerContext(listOf(sgDetails, myDetails))
 
     // Find country list for the Country group . (For e.g. asia)
-    val countryList = countryGroups["asia"]
-    if (countryList.isNullOrEmpty()) return
+    val countryList = countryGroups["asia"] ?: emptyList()
 
     // Find all allowed regions for the countries in the group (for e.g all countries in asia group)
     val regionListForCountries: List<String> = countryList.flatMap { regionsForCountries[it] ?: emptyList() }
@@ -51,15 +50,13 @@ fun testAsiaGroup() {
     // Find all the region code available for this user.
     val allowedRegionList = regionListFromServerContext.intersect(regionListForCountries).toList()
 
-    val allowedCountryList =  mutableListOf<String>()
-    countryList.forEach {
-        val regionsForCountry = regionsForCountries[it]
-        if (!regionsForCountry.isNullOrEmpty()) {
-
-            // Find if the region list for this country exist in the allowed regions
-            if (regionsForCountry.intersect(allowedRegionList).isNotEmpty()) {
-                allowedCountryList.add(it)
-            }
+    val allowedCountryList = countryList.flatMap {
+        val regionsForCountry = regionsForCountries[it] ?: emptyList()
+        // Find if the region list for this country exist in the allowed regions
+        if (regionsForCountry.intersect(allowedRegionList).isNotEmpty()) {
+            listOf(it)
+        } else {
+            emptyList()
         }
     }
 
